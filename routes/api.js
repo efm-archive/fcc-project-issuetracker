@@ -12,6 +12,7 @@ var expect = require('chai').expect;
 var MongoClient = require('mongodb');
 var ObjectId = require('mongodb').ObjectID;
 const mongoose = require('mongoose');
+const slugify = require('slugify');
 
 require('dotenv').config();
 
@@ -20,13 +21,12 @@ const CONNECTION_STRING = process.env.MONGO; //MongoClient.connect(CONNECTION_ST
 const Schema = mongoose.Schema;
 
 const issueSchema = new Schema({
-  username: String,
-  exercises: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'Exercise'
-    }
-  ]
+  project: { type: String, required: true },
+  title: { type: String, required: true },
+  text: { type: String, required: true },
+  createdBy: { type: String, required: true },
+  assignedTo: String,
+  statusText: String
 });
 
 const Issue = mongoose.model('Issue', issueSchema);
@@ -43,13 +43,35 @@ module.exports = function(app) {
   app
     .route('/api/issues/:project')
 
-    .get(function(req, res) {
+    .get(async function(req, res) {
       var project = req.params.project;
+      // console.log('req.body :', req.body);
+      const issues = await Issue.find({}, (err, issues) => {
+        const result = [];
+        issues.forEach(issue => {
+          console.log('issue :', issue);
+        });
+        res.send(issues);
+      });
     })
 
-    .post(function(req, res) {
+    .post(async function(req, res) {
       var project = req.params.project;
-      console.log('req.body :', req.body);
+      // console.log('req.body :', req.body);
+
+      // create a new Issue for the passed in project with the req.body data
+      const newIssue = new Issue({
+        project: project,
+        title: req.body.issue_title,
+        text: req.body.issue_text,
+        createdBy: req.body.created_by,
+        assignedTo: req.body.assigned_to,
+        statusText: req.body.status_text
+      });
+      // console.log('newIssue :', newIssue);
+
+      // save the Issue to the database
+      newIssue.save((err, doc) => {});
     })
 
     .put(function(req, res) {
