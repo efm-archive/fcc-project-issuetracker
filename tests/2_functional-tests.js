@@ -128,7 +128,7 @@ suite('Functional Tests', function() {
     'GET /api/issues/{project} => Array of objects with issue data',
     function() {
       test('No filter', function(done) {
-        // this.timeout(6000);
+        this.timeout(6000);
         chai
           .request(server)
           .get('/api/issues/test')
@@ -151,7 +151,7 @@ suite('Functional Tests', function() {
       });
 
       test('One filter', function(done) {
-        // this.timeout(6000);
+        this.timeout(6000);
         chai
           .request(server)
           .get('/api/issues/test')
