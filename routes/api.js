@@ -16,7 +16,7 @@ const slugify = require('slugify');
 
 require('dotenv').config();
 
-const CONNECTION_STRING = process.env.MONGO; //MongoClient.connect(CONNECTION_STRING, function(err, db) {});
+const CONNECTION_STRING = process.env.DB; //MongoClient.connect(CONNECTION_STRING, function(err, db) {});
 
 const Schema = mongoose.Schema;
 
