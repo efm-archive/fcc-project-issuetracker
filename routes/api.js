@@ -100,6 +100,54 @@ module.exports = function(app) {
 
     .put(async function(req, res, next) {
       var project = req.params.project;
+      // get the issue id from the req.body object
+      const id = req.body._id;
+
+      // If more than 1 fields are sent and we have an id
+      if (Object.keys(req.body).length > 1 && id) {
+        try {
+          // find the Issue for the passed in project and _id
+          const issue = await Issue.findOne(
+            { _id: id, project: project },
+            (err, issue) => {
+              if (err) {
+                // if the issue could not be found, change the response message
+                res.status(400).send('could not update ' + id);
+                return next();
+              }
+            }
+          );
+
+          // loop over the req.body object and find values that need updating
+          for (const key in req.body) {
+            const element = req.body[key];
+            // if the key is not the _id
+            if (key !== '_id') {
+              // if there is a value that has changed
+              if (element) {
+                // update the issue with the new value
+                issue[key] = element;
+              }
+            }
+          }
+
+          // set the updated_on date to current date
+          issue.updated_on = new Date();
+
+          // save the updated issue to the db
+          await issue.save().then(() => {
+            // change the result to 'successfully updated'
+            res.status(200).send('successfully updated');
+            return next();
+          });
+        } catch (error) {
+          console.log('error :', error);
+          throw new Error('Error updating the Issue');
+        }
+      } else {
+        res.status(400).send('no updated field sent');
+        return next();
+      }
     })
 
     .delete(async function(req, res, next) {
