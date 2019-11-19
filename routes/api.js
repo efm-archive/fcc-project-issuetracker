@@ -152,5 +152,45 @@ module.exports = function(app) {
 
     .delete(async function(req, res, next) {
       var project = req.params.project;
+
+      // check for an _id in the query object, if none check the body object
+      const id = req.query._id || req.body._id;
+
+      // if there is no id
+      if (!id) {
+        // respond with the message _id error
+        res.status(400).send('_id error');
+        return next();
+      }
+      // if there is an id
+      if (id) {
+        // check if the id is valid
+        if (mongoose.Types.ObjectId.isValid(id)) {
+          try {
+            // get the corresponding issue
+            const issue = await Issue.findOne(
+              { _id: id, project: project },
+              (err, issue) => {
+                // console.log('deleted issue ->', issue);
+              }
+            );
+            // if there is an issue
+            if (issue) {
+              // delete the issue
+              await issue.deleteOne().then(() => {
+                // send response message: 'deleted '+ _id
+                res.status(200).send('deleted ' + id);
+                return next();
+              });
+            }
+          } catch (error) {
+            console.log('error :', error);
+            throw new Error('Error deleting the Issue');
+          }
+        }
+      } else {
+        res.status(400).send('could not delete ' + id);
+        return next();
+      }
     });
 };
