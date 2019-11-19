@@ -12,7 +12,6 @@ var expect = require('chai').expect;
 var MongoClient = require('mongodb');
 var ObjectId = require('mongodb').ObjectID;
 const mongoose = require('mongoose');
-const slugify = require('slugify');
 
 require('dotenv').config();
 
